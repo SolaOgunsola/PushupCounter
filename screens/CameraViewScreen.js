@@ -13,6 +13,8 @@ import colors from '../config/colors';
 
 function CameraViewScreen(props) {
   const [faceData, setFaceData] = useState([]);
+  const [buttonTitle, setButtonTitle] = useState('Start');
+  const [buttonColor, setButtonColor] = useState('secondary');
 
   function getFaceDataView() {
     if (faceData.length === 0) {
@@ -49,6 +51,16 @@ function CameraViewScreen(props) {
     console.log(faces);
   };
 
+  function handlePress() {
+    if (buttonTitle === 'Start') {
+      setButtonTitle('Stop');
+      setButtonColor('primary');
+    } else {
+      setButtonTitle('Start');
+      setButtonColor('secondary');
+    }
+  }
+
   return (
     <Screen style={styles.container}>
       <Camera
@@ -65,8 +77,7 @@ function CameraViewScreen(props) {
       >
         {getFaceDataView()}
       </Camera>
-      <Button title='Start' onPress={null} />
-      <Button title='Stop' onPress={null} color='secondary' />
+      <Button title={buttonTitle} color={buttonColor} onPress={handlePress} />
     </Screen>
   );
 }
