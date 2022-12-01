@@ -10,6 +10,7 @@ import {
 import Screen from '../components/Screen';
 import Button from '../components/Button';
 import colors from '../config/colors';
+import FaceBox from '../components/FaceBox';
 
 function CameraViewScreen(props) {
   /**
@@ -34,21 +35,14 @@ function CameraViewScreen(props) {
       );
     } else {
       return faceData.map((face, index) => {
-        const eyesShut =
-          face.rightEyeOpenProbability < 0.4 &&
-          face.leftEyeOpenProbability < 0.4;
-        const winking =
-          !eyesShut &&
-          (face.rightEyeOpenProbability < 0.4 ||
-            face.leftEyeOpenProbability < 0.4);
-        const smiling = face.smilingProbability > 0.7;
+        const width = face.bounds.size.width;
+        const originX = face.bounds.origin.x;
+        const originY = face.bounds.origin.y;
         return (
           <View style={styles.faces} key={index}>
-            <Text style={styles.faceDesc}>
-              Eyes shut: {eyesShut.toString()}
-            </Text>
-            <Text style={styles.faceDesc}>Winking: {winking.toString()}</Text>
-            <Text style={styles.faceDesc}>Smiling: {smiling.toString()}</Text>
+            <Text style={styles.faceDesc}>Width: {width.toString()}</Text>
+            <Text style={styles.faceDesc}>OriginX: {originX.toString()}</Text>
+            <Text style={styles.faceDesc}>OriginY: {originY.toString()}</Text>
           </View>
         );
       });
@@ -58,13 +52,12 @@ function CameraViewScreen(props) {
   const handleFacesDetected = ({ faces }) => {
     if (isCollecting === true) {
       setFaceData(faces);
-      console.log(faces);
+      //console.log(faces[0].bounds.size.width);
     }
   };
 
   /**
    * Function to manage the button handling.
-   * TODO: "Start" will start face data collection, "Stop" wil stop face data collection
    */
   function handlePress() {
     if (buttonTitle === 'Start') {
@@ -93,6 +86,7 @@ function CameraViewScreen(props) {
         }}
       >
         {getFaceDataView()}
+        <FaceBox />
       </Camera>
       <Button title={buttonTitle} color={buttonColor} onPress={handlePress} />
     </Screen>
