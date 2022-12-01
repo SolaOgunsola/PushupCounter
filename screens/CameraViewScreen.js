@@ -12,10 +12,19 @@ import Button from '../components/Button';
 import colors from '../config/colors';
 
 function CameraViewScreen(props) {
+  /**
+   * States
+   */
   const [faceData, setFaceData] = useState([]);
+  const [isCollecting, setIsCollecting] = useState(false);
+
   const [buttonTitle, setButtonTitle] = useState('Start');
   const [buttonColor, setButtonColor] = useState('secondary');
 
+  /**
+   *  Display face data on the screen
+   * @returns Probability of eyes shut, winking, and smiling
+   */
   function getFaceDataView() {
     if (faceData.length === 0) {
       return (
@@ -47,17 +56,25 @@ function CameraViewScreen(props) {
   }
 
   const handleFacesDetected = ({ faces }) => {
-    setFaceData(faces);
-    console.log(faces);
+    if (isCollecting === true) {
+      setFaceData(faces);
+      console.log(faces);
+    }
   };
 
+  /**
+   * Function to manage the button handling.
+   * TODO: "Start" will start face data collection, "Stop" wil stop face data collection
+   */
   function handlePress() {
     if (buttonTitle === 'Start') {
       setButtonTitle('Stop');
       setButtonColor('primary');
+      setIsCollecting(true);
     } else {
       setButtonTitle('Start');
       setButtonColor('secondary');
+      setIsCollecting('False');
     }
   }
 
