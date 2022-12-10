@@ -11,20 +11,33 @@ import Screen from '../components/Screen';
 import Button from '../components/Button';
 import colors from '../config/colors';
 import FaceBox from '../components/FaceBox';
+import Counter from '../components/Counter';
+
+const detectionInterval = 100;
+var count = 0;
+
+function countRepDown(width) {
+  return width > 450;
+}
+
+function countRepUp(width) {
+  return width < 200;
+}
 
 function CameraViewScreen(props) {
-  /**
-   * States
-   */
   const [faceData, setFaceData] = useState([]);
   const [isCollecting, setIsCollecting] = useState(false);
 
   const [buttonTitle, setButtonTitle] = useState('Start');
   const [buttonColor, setButtonColor] = useState('secondary');
 
+  //State's for rep counting
+  const [isCheckingDownRep, setIsCheckingDownRep] = useState(true);
+  const [isCheckingUpRep, setIsCheckingUpRep] = useState(false);
+
   /**
    *  Display face data on the screen
-   * @returns Probability of eyes shut, winking, and smiling
+   * @returns Width of face, position of face in X, Y coords
    */
   function getFaceDataView() {
     if (faceData.length === 0) {
@@ -52,7 +65,21 @@ function CameraViewScreen(props) {
   const handleFacesDetected = ({ faces }) => {
     if (isCollecting === true) {
       setFaceData(faces);
-      //console.log(faces[0].bounds.size.width);
+
+      const width = faces[0].bounds.size.width;
+      if (isCheckingDownRep) {
+        if (countRepDown(width)) {
+          setIsCheckingDownRep(false);
+          setIsCheckingUpRep(true);
+        }
+      }
+      if (isCheckingUpRep) {
+        if (countRepUp(width)) {
+          count += 1;
+          setIsCheckingUpRep(false);
+          setIsCheckingDownRep(true);
+        }
+      }
     }
   };
 
@@ -81,7 +108,7 @@ function CameraViewScreen(props) {
           mode: FaceDetectorMode.accurate,
           detectLandmarks: FaceDetectorLandmarks.none,
           runClassifications: FaceDetectorClassifications.all,
-          minDetectionInterval: 100,
+          minDetectionInterval: detectionInterval,
           tracking: true,
         }}
       >
@@ -89,6 +116,7 @@ function CameraViewScreen(props) {
         <FaceBox />
       </Camera>
       <Button title={buttonTitle} color={buttonColor} onPress={handlePress} />
+      <Counter title='Reps:' count={count} />
     </Screen>
   );
 }
