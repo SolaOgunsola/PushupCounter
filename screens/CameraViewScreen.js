@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Switch, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Camera, CameraType } from 'expo-camera';
 import {
   FaceDetectorClassifications,
@@ -12,14 +12,28 @@ import Button from '../components/Button';
 import colors from '../config/colors';
 import FaceBox from '../components/FaceBox';
 import Counter from '../components/Counter';
+import DebugSwitch from '../components/DebugSwitch';
 
+/**
+ * Facial detection interval
+ */
 const detectionInterval = 100;
+
+/**
+ * The amount of reps counted. Resets upon the app reloading.
+ */
 let repCount = 0;
 
+/**
+ * Criteria for counting the first half of a rep (going down).
+ */
 function countRepDown(width) {
   return width > 450;
 }
 
+/**
+ * Criteria for counting the second half of a rep (going back up).
+ */
 function countRepUp(width) {
   return width < 200;
 }
@@ -34,7 +48,6 @@ function CameraViewScreen(props) {
   const [isCheckingDownRep, setIsCheckingDownRep] = useState(true);
   const [isCheckingUpRep, setIsCheckingUpRep] = useState(false);
 
-  //Switch
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
 
@@ -98,7 +111,7 @@ function CameraViewScreen(props) {
 
   /**
    *
-   * @param {*} faces
+   * Functionality for counting reps.
    */
   function countReps(faces) {
     try {
@@ -143,11 +156,10 @@ function CameraViewScreen(props) {
       <View style={styles.counterContainer}>
         <Button title={buttonTitle} color={buttonColor} onPress={handlePress} />
         <Counter title='Reps:' count={repCount} />
-        <Switch
-          trackColor={{ false: 'red', true: 'red' }}
-          ios_backgroundColor='#3e3e3e'
+        <DebugSwitch
           onValueChange={toggleSwitch}
           value={isEnabled}
+          style={{ bottom: -200 }}
         />
       </View>
     </Screen>
@@ -161,6 +173,7 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: '#2b2a2a',
+    flex: 1,
   },
   counterContainer: {
     justifyContent: 'center',
