@@ -20,22 +20,30 @@ import DebugSwitch from '../components/DebugSwitch';
 const detectionInterval = 100;
 
 /**
+ * Criteria for counting the bottom and top part of a rep
+ */
+const repCriteria = {
+  bottomWidth: 450,
+  topWidth: 200,
+};
+
+/**
  * The amount of reps counted. Resets upon the app reloading.
  */
 let repCount = 0;
 
 /**
- * Criteria for counting the first half of a rep (going down).
+ * Counts the bottom part of a rep if the criteria is met.
  */
 function countRepDown(width) {
-  return width > 450;
+  return width > repCriteria.bottomWidth;
 }
 
 /**
- * Criteria for counting the second half of a rep (going back up).
+ * Counts the top part of a rep if the criteria is met.
  */
 function countRepUp(width) {
-  return width < 200;
+  return width < repCriteria.topWidth;
 }
 
 function CameraViewScreen(props) {
@@ -66,16 +74,16 @@ function CameraViewScreen(props) {
     } else {
       return faceData.map((face, index) => {
         const width = face.bounds.size.width;
-        const originX = face.bounds.origin.x;
-        const originY = face.bounds.origin.y;
         return (
           <View style={styles.face} key={index}>
-            <Text style={styles.faceDebugInfo}>Width: {width.toString()}</Text>
             <Text style={styles.faceDebugInfo}>
-              OriginX: {originX.toString()}
+              Face Width: {width.toString()}
             </Text>
             <Text style={styles.faceDebugInfo}>
-              OriginY: {originY.toString()}
+              Top Rep Width Criteria: {repCriteria.topWidth}
+            </Text>
+            <Text style={styles.faceDebugInfo}>
+              Bottom Rep Width Criteria: {repCriteria.bottomWidth}
             </Text>
           </View>
         );

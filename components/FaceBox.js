@@ -1,17 +1,13 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Octicons } from '@expo/vector-icons';
 
 import colors from '../config/colors';
 
 function FaceBox({ style }) {
   return (
     <View style={[styles.faceBox, style]}>
-      <MaterialCommunityIcons
-        name='dots-circle'
-        size={40}
-        color={colors.white}
-      />
+      <Octicons name='dot-fill' size={30} color={colors.white} />
     </View>
   );
 }
