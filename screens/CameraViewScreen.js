@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Switch, Text, View } from 'react-native';
 import { Camera, CameraType } from 'expo-camera';
 import {
   FaceDetectorClassifications,
@@ -14,7 +14,7 @@ import FaceBox from '../components/FaceBox';
 import Counter from '../components/Counter';
 
 const detectionInterval = 100;
-var count = 0;
+let repCount = 0;
 
 function countRepDown(width) {
   return width > 450;
@@ -31,19 +31,23 @@ function CameraViewScreen(props) {
   const [buttonTitle, setButtonTitle] = useState('Start');
   const [buttonColor, setButtonColor] = useState('secondary');
 
-  //State's for rep counting
   const [isCheckingDownRep, setIsCheckingDownRep] = useState(true);
   const [isCheckingUpRep, setIsCheckingUpRep] = useState(false);
+
+  //Switch
+  const [isEnabled, setIsEnabled] = useState(false);
+  const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
 
   /**
    *  Display face data on the screen
    * @returns Width of face, position of face in X, Y coords
    */
   function getFaceDataView() {
+    if (!isEnabled) return;
     if (faceData.length === 0) {
       return (
-        <View style={styles.faces}>
-          <Text style={styles.faceDesc}>No faces detected</Text>
+        <View style={styles.face}>
+          <Text style={styles.faceDebugInfo}>No faces detected</Text>
         </View>
       );
     } else {
@@ -52,34 +56,28 @@ function CameraViewScreen(props) {
         const originX = face.bounds.origin.x;
         const originY = face.bounds.origin.y;
         return (
-          <View style={styles.faces} key={index}>
-            <Text style={styles.faceDesc}>Width: {width.toString()}</Text>
-            <Text style={styles.faceDesc}>OriginX: {originX.toString()}</Text>
-            <Text style={styles.faceDesc}>OriginY: {originY.toString()}</Text>
+          <View style={styles.face} key={index}>
+            <Text style={styles.faceDebugInfo}>Width: {width.toString()}</Text>
+            <Text style={styles.faceDebugInfo}>
+              OriginX: {originX.toString()}
+            </Text>
+            <Text style={styles.faceDebugInfo}>
+              OriginY: {originY.toString()}
+            </Text>
           </View>
         );
       });
     }
   }
 
+  /**
+   *
+   * Handle what happens each instance that a face is detected. Called repeatedly based on minDetectionInterval.
+   */
   const handleFacesDetected = ({ faces }) => {
     if (isCollecting === true) {
       setFaceData(faces);
-
-      const width = faces[0].bounds.size.width;
-      if (isCheckingDownRep) {
-        if (countRepDown(width)) {
-          setIsCheckingDownRep(false);
-          setIsCheckingUpRep(true);
-        }
-      }
-      if (isCheckingUpRep) {
-        if (countRepUp(width)) {
-          count += 1;
-          setIsCheckingUpRep(false);
-          setIsCheckingDownRep(true);
-        }
-      }
+      countReps(faces);
     }
   };
 
@@ -98,6 +96,33 @@ function CameraViewScreen(props) {
     }
   }
 
+  /**
+   *
+   * @param {*} faces
+   */
+  function countReps(faces) {
+    try {
+      const width = faces[0].bounds.size.width;
+      if (isCheckingDownRep) {
+        if (countRepDown(width)) {
+          setIsCheckingDownRep(false);
+          setIsCheckingUpRep(true);
+        }
+      }
+      if (isCheckingUpRep) {
+        if (countRepUp(width)) {
+          repCount += 1;
+          setIsCheckingUpRep(false);
+          setIsCheckingDownRep(true);
+        }
+      }
+    } catch (error) {
+      console.log('No face detected');
+      setIsCheckingUpRep(false);
+      setIsCheckingDownRep(true);
+    }
+  }
+
   return (
     <Screen style={styles.container}>
       <Camera
@@ -113,10 +138,18 @@ function CameraViewScreen(props) {
         }}
       >
         {getFaceDataView()}
-        <FaceBox />
+        <FaceBox style={styles.faceBox} />
       </Camera>
-      <Button title={buttonTitle} color={buttonColor} onPress={handlePress} />
-      <Counter title='Reps:' count={count} />
+      <View style={styles.counterContainer}>
+        <Button title={buttonTitle} color={buttonColor} onPress={handlePress} />
+        <Counter title='Reps:' count={repCount} />
+        <Switch
+          trackColor={{ false: 'red', true: 'red' }}
+          ios_backgroundColor='#3e3e3e'
+          onValueChange={toggleSwitch}
+          value={isEnabled}
+        />
+      </View>
     </Screen>
   );
 }
@@ -129,14 +162,23 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#2b2a2a',
   },
-  faces: {
+  counterContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+  },
+  face: {
     backgroundColor: colors.white,
     alignSelf: 'stretch',
     alignItems: 'center',
     justifyContent: 'center',
     margin: 16,
   },
-  faceDesc: {
+  faceBox: {
+    top: 100,
+    position: 'absolute',
+  },
+  faceDebugInfo: {
     fontSize: 20,
   },
 });

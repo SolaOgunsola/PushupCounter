@@ -12,10 +12,6 @@ function Counter({ count, title }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   text: {
     color: '#fff',
     fontWeight: 'bold',

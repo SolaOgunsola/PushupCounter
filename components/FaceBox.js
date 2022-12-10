@@ -4,9 +4,9 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import colors from '../config/colors';
 
-function FaceBox(props) {
+function FaceBox({ style }) {
   return (
-    <View style={styles.faceBox}>
+    <View style={[styles.faceBox, style]}>
       <MaterialCommunityIcons
         name='dots-circle'
         size={40}
